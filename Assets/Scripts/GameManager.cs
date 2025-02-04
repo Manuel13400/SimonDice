@@ -17,9 +17,12 @@ public class GameManager : MonoBehaviour
 
     public GameObject textCanvas;
     public TextMeshProUGUI TextoResultados;
+    public TextMeshProUGUI TextoPulsado;
     public TextMeshProUGUI texto_extra_1;
     public TextMeshProUGUI texto_extra_2;
     public TextMeshProUGUI texto_extra_3;
+
+    bool ocupado = false;
 
     public void Start()
     {
@@ -27,6 +30,9 @@ public class GameManager : MonoBehaviour
 
         textCanvas = GameObject.Find("Resultados");
         TextoResultados = textCanvas.GetComponent<TextMeshProUGUI>();
+
+        textCanvas = GameObject.Find("Pulsado");
+        TextoPulsado = textCanvas.GetComponent<TextMeshProUGUI>();
 
         textCanvas = GameObject.Find("texto_extra_1");
         texto_extra_1 = textCanvas.GetComponent<TextMeshProUGUI>();
@@ -129,23 +135,28 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator mostrarUltimoPulsado()
     {
-        texto_extra_1.text = arrayBotonesPulsados[contadorBotonesPulsados - 1].ToString();
+        if (!ocupado)
+        {
+            TextoPulsado.text = arrayBotonesPulsados[contadorBotonesPulsados - 1].ToString();
 
-        
+            ocupado = true;
 
-        yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(3f);
 
-        texto_extra_1.text = "";
+            TextoPulsado.text = "";
+
+            ocupado = false;
+        }
+
     }
 
     public void botonPrimero()
     {
-        //Debug.Log(arrayBotonesPulsados[0]);
-
+        texto_extra_1.text = arrayBotonesPulsados[0].ToString();
     }
 
     public void botonUltimo()
     {
-        //Debug.Log(arrayBotonesPulsados[contadorBotonesPulsados - 1]);
+        texto_extra_2.text = arrayBotonesPulsados[contadorBotonesPulsados - 1].ToString();
     }
 }
