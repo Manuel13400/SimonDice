@@ -13,14 +13,14 @@ public class GameManager : MonoBehaviour
 
     GameObject[] buttonList;
 
-    GameObject buttonToHide;
-
     public GameObject textCanvas;
     public TextMeshProUGUI TextoResultados;
     public TextMeshProUGUI TextoPulsado;
     public TextMeshProUGUI texto_extra_1;
     public TextMeshProUGUI texto_extra_2;
     public TextMeshProUGUI texto_extra_3;
+
+    int azul_mem = 0, rojo_mem = 0, amarillo_mem = 0, verde_mem = 0;
 
     bool ocupado = false;
 
@@ -51,7 +51,9 @@ public class GameManager : MonoBehaviour
             //Debug.Log("Botón verde pulsado");
             arrayBotonesPulsados[contadorBotonesPulsados] = "VERDE";
             contadorBotonesPulsados++;
-            StartCoroutine(mostrarUltimoPulsado());
+            verde_mem++;
+            if (ocupado) { StopCoroutine("mostrarUltimoPulsado"); }
+            StartCoroutine("mostrarUltimoPulsado");
         }
         else { avisoVeinte(); }
     }
@@ -61,7 +63,9 @@ public class GameManager : MonoBehaviour
             //Debug.Log("Botón rojo pulsado");
             arrayBotonesPulsados[contadorBotonesPulsados] = "ROJO";
             contadorBotonesPulsados++;
-            StartCoroutine(mostrarUltimoPulsado());
+            rojo_mem++;
+            if (ocupado) { StopCoroutine("mostrarUltimoPulsado"); }
+            StartCoroutine("mostrarUltimoPulsado");
         }
         else { avisoVeinte(); }
 
@@ -72,7 +76,9 @@ public class GameManager : MonoBehaviour
             //Debug.Log("Botón amarillo pulsado");
             arrayBotonesPulsados[contadorBotonesPulsados] = "AMARILLO";
             contadorBotonesPulsados++;
-            StartCoroutine(mostrarUltimoPulsado());
+            amarillo_mem++;
+            if (ocupado) { StopCoroutine("mostrarUltimoPulsado"); }
+            StartCoroutine("mostrarUltimoPulsado");
         }
         else { avisoVeinte(); }
     }
@@ -82,8 +88,9 @@ public class GameManager : MonoBehaviour
             //Debug.Log("Botón azul pulsado");
             arrayBotonesPulsados[contadorBotonesPulsados] = "AZUL";
             contadorBotonesPulsados++;
-            StartCoroutine(mostrarUltimoPulsado());
-
+            azul_mem++;
+            if (ocupado) { StopCoroutine("mostrarUltimoPulsado"); }
+            StartCoroutine("mostrarUltimoPulsado");
         }
         else { avisoVeinte(); }
     }
@@ -107,7 +114,7 @@ public class GameManager : MonoBehaviour
         Debug.Log(lista);
     }
 
-    // MOSTRAR COLORES PULSADOS
+    // MOSTRAR COLORES PULSADOS (DESACTIVA LOS BOTONES TEMPORALMENTE PARA EVITAR ERRORES DE FUNCIONAMIENTO)
     private IEnumerator showColors()
     {
         hideButtons();
@@ -131,32 +138,83 @@ public class GameManager : MonoBehaviour
         contadorBotonesPulsados = 0;
         arrayBotonesPulsados = new string[20];
         lista = "";
+        azul_mem = 0; rojo_mem = 0; amarillo_mem = 0; verde_mem = 0;
+        TextoPulsado.text = "";
+
     }
 
+    // MOSTRAR ULTIMO PULSADO
     private IEnumerator mostrarUltimoPulsado()
     {
-        if (!ocupado)
-        {
-            TextoPulsado.text = arrayBotonesPulsados[contadorBotonesPulsados - 1].ToString();
-
-            ocupado = true;
-
-            yield return new WaitForSeconds(3f);
-
-            TextoPulsado.text = "";
-
-            ocupado = false;
-        }
-
+        Debug.Log("empezado");
+        TextoPulsado.text = arrayBotonesPulsados[contadorBotonesPulsados - 1].ToString();
+        ocupado = true;
+        yield return new WaitForSeconds(3f);
+        Debug.Log("terminado");
+        TextoPulsado.text = "";
+        texto_extra_1.text = "";
+        texto_extra_2.text = "";
+        texto_extra_3.text = "";
+        ocupado = false;
     }
 
+    // MOSTRAR PRIMERO DE LA LISTA
     public void botonPrimero()
     {
-        texto_extra_1.text = arrayBotonesPulsados[0].ToString();
+        if (arrayBotonesPulsados[0] != null)
+        {
+            texto_extra_1.text = arrayBotonesPulsados[0].ToString();
+        }
     }
 
+    // MOSTRAR ULTIMO DE LA LISTA
     public void botonUltimo()
     {
-        texto_extra_2.text = arrayBotonesPulsados[contadorBotonesPulsados - 1].ToString();
+        if (contadorBotonesPulsados != 0)
+        {
+            texto_extra_2.text = arrayBotonesPulsados[contadorBotonesPulsados - 1].ToString();
+        }
     }
+
+    // MOSTRAR PULSACIONES DE CADA COLOR (RECORRIENDO ARRAY)
+    public void botonContadorUno()
+    {
+        int azul = 0, rojo = 0, amarillo = 0, verde = 0;
+        for (int i = 0; i < contadorBotonesPulsados; i++)
+        {
+            switch (arrayBotonesPulsados[i]) 
+            {
+                case "VERDE":
+                    verde++;
+                    break;
+                case "ROJO":
+                    rojo++;
+                    break;
+                case "AMARILLO":
+                    amarillo++;
+                    break;
+                case "AZUL":
+                    azul++;
+                    break;
+            }
+        }
+
+        texto_extra_3.text =    "Verde: " + verde +
+                                "\nRojo: " + rojo +
+                                "\nAmarillo: " + amarillo+
+                                "\nAzul: " + azul;
+    }
+
+    // MOSTRAR PULSACIONES DE CADA COLOR (ALMACENANDO COLORES)
+    // Esta solucion me parece mas eficiente, ya que no necesita tener que recorrer toda la lista, simplemente buscar los parametros guardados
+    public void botonContadorDos()
+    {
+        texto_extra_3.text =    "Verde: " + verde_mem + 
+                                "\nRojo: " + rojo_mem +
+                                "\nAmarillo: " + amarillo_mem +
+                                "\nAzul: " + azul_mem;
+    }
+
+    // Respecto a la manera para hacer estas cuentas escalables, se me ocurre usar un diccionario, que guarde el nombre del color con un string y
+    // la cuenta de veces pulsadas en un int y cada vez que se pulse un boton la cuenta aumente
 }
